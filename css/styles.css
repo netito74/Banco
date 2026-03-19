@@ -586,6 +586,153 @@ body {
 }
 
 /* ─────────────────────────────────────
+   RESPONSIVE — TABLET (max 768px)
+───────────────────────────────────── */
+@media (max-width: 768px) {
+
+  body {
+    padding: 20px 12px 60px;
+  }
+
+  /* Formulario */
+  .form-card {
+    padding: 28px 20px 24px;
+    border-radius: 10px;
+  }
+
+  .pp-logo .la,
+  .pp-logo .lb { font-size: 1.8rem; }
+
+  .form-title { font-size: 0.95rem; }
+  .form-sub   { font-size: 0.75rem; margin-bottom: 22px; }
+
+  /* Filas de dos columnas → una sola columna */
+  .field-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .f-input, .f-select {
+    font-size: 0.88rem;
+    padding: 10px 12px;
+  }
+
+  .btn-primary {
+    font-size: 0.9rem;
+    padding: 13px;
+    margin-top: 20px;
+  }
+
+  /* Comprobante */
+  .receipt-screen { max-width: 100%; }
+
+  #receiptDoc { border-radius: 10px; }
+
+  .r-header { padding: 16px 20px 12px; }
+  .r-logo .la,
+  .r-logo .lb { font-size: 1.2rem; }
+  .r-doc-title { font-size: 0.68rem; }
+  .r-doc-ref   { font-size: 0.6rem; }
+
+  .r-status { padding: 12px 20px; gap: 10px; }
+  .r-status-icon { width: 26px; height: 26px; }
+  .r-status-main { font-size: 0.82rem; }
+  .r-status-sub  { font-size: 0.65rem; }
+
+  .r-amount-block { padding: 18px 20px 14px; }
+  .r-amount-value { font-size: 2.2rem; }
+
+  .r-section { padding: 14px 20px; }
+  .r-section-title { font-size: 0.58rem; padding-bottom: 8px; margin-bottom: 8px; }
+
+  .r-row { padding: 5px 0; gap: 10px; }
+  .r-label { font-size: 0.72rem; }
+  .r-value { font-size: 0.76rem; }
+  .r-value.mono,
+  .r-value.masked { font-size: 0.7rem; letter-spacing: 0.5px; }
+
+  /* Aviso pendiente */
+  .r-pending-notice { padding: 14px 20px; }
+  .r-pending-title    { font-size: 0.8rem; }
+  .r-pending-subtitle { font-size: 0.65rem; }
+  .r-pending-body {
+    font-size: 0.75rem;
+    padding-left: 36px;
+  }
+  .r-pending-amount {
+    margin-left: 36px;
+    font-size: 0.76rem;
+    padding: 5px 10px;
+  }
+  .r-pending-amount .amt-num { font-size: 0.95rem; }
+
+  /* Footer del comprobante */
+  .r-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px 20px 16px;
+  }
+  .r-footer-note { font-size: 0.6rem; max-width: 100%; }
+  .r-footer-date { font-size: 0.62rem; text-align: left; }
+
+  /* Botones de acción */
+  .actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn-pdf,
+  .btn-print,
+  .btn-new {
+    flex: none;
+    width: 100%;
+    padding: 13px;
+    font-size: 0.88rem;
+    justify-content: center;
+  }
+}
+
+/* ─────────────────────────────────────
+   RESPONSIVE — MÓVIL PEQUEÑO (max 400px)
+───────────────────────────────────── */
+@media (max-width: 400px) {
+
+  body { padding: 12px 8px 50px; }
+
+  .form-card { padding: 22px 16px 20px; }
+
+  .pp-logo .la,
+  .pp-logo .lb { font-size: 1.6rem; }
+
+  .r-amount-value { font-size: 1.9rem; }
+
+  .r-section { padding: 12px 16px; }
+  .r-header  { padding: 14px 16px 10px; }
+  .r-status  { padding: 10px 16px; }
+  .r-amount-block { padding: 14px 16px 12px; }
+  .r-pending-notice { padding: 12px 16px; }
+  .r-footer { padding: 12px 16px 14px; }
+
+  .r-pending-body  { padding-left: 0; margin-top: 8px; }
+  .r-pending-amount { margin-left: 0; }
+
+  .r-value.mono,
+  .r-value.masked {
+    font-size: 0.65rem;
+    letter-spacing: 0.3px;
+  }
+
+  /* En pantallas muy pequeñas, las claves SPEI se rompen en línea nueva */
+  .r-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 6px 0;
+  }
+  .r-value { text-align: left; }
+}
+
+/* ─────────────────────────────────────
    IMPRESIÓN
 ───────────────────────────────────── */
 @media print {
