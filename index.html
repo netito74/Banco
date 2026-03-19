@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprobante de Transferencia — PayPal</title>
+
+  <!-- CDN: jsPDF + html2canvas para generar PDF real -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Estilos del proyecto -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PASO 1 — FORMULARIO DE DATOS
+══════════════════════════════════════ -->
+<div class="form-card" id="stepForm">
+
+  <div class="pp-logo">
+    <span class="la">Pay</span><span class="lb">Pal</span>
+  </div>
+  <div class="form-title">Generar comprobante de transferencia</div>
+  <div class="form-sub">Completa los datos del remitente y destinatario</div>
+
+  <!-- ── REMITENTE ── -->
+  <div class="sec-lbl">Datos del remitente</div>
+
+  <div class="field-group">
+    <label class="f-label" for="fSName">Nombre completo <span class="req">*</span></label>
+    <input class="f-input" id="fSName" type="text" placeholder="Tu nombre completo" maxlength="80">
+    <div class="err-msg" id="eSName">Ingresa tu nombre</div>
+  </div>
+
+  <div class="field-group">
+    <label class="f-label" for="fSEmail">Correo electrónico <span class="req">*</span></label>
+    <input class="f-input" id="fSEmail" type="email" placeholder="tucorreo@ejemplo.com" maxlength="80">
+    <div class="err-msg" id="eSEmail">Ingresa un correo válido</div>
+  </div>
+
+  <div class="field-row">
+    <div class="field-group">
+      <label class="f-label" for="fSAcc">Número de cuenta origen <span class="req">*</span></label>
+      <input class="f-input f-mono" id="fSAcc" type="text"
+        placeholder="0000 0000 0000 0000" maxlength="24" oninput="fmtAcc(this)">
+      <div class="f-hint">Solo se mostrarán los últimos 4 dígitos</div>
+      <div class="err-msg" id="eSAcc">Ingresa tu número de cuenta</div>
+    </div>
+    <div class="field-group">
+      <label class="f-label" for="fSBank">Banco origen <span class="req">*</span></label>
+      <div class="select-wrap">
+        <select class="f-select" id="fSBank">
+          <option value="">Seleccionar...</option>
+          <option>BBVA México</option>
+          <option>Citibanamex</option>
+          <option>Santander México</option>
+          <option>HSBC México</option>
+          <option>Banorte</option>
+          <option>Scotiabank</option>
+          <option>Inbursa</option>
+          <option>BanBajío</option>
+          <option>Afirme</option>
+          <option>Banco Azteca</option>
+          <option>Nu México</option>
+          <option>Hey Banco</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="err-msg" id="eSBank">Selecciona tu banco</div>
+    </div>
+  </div>
+
+  <!-- ── DESTINATARIO ── -->
+  <div class="sec-lbl">Datos del destinatario</div>
+
+  <div class="field-group">
+    <label class="f-label" for="fRName">Nombre completo del destinatario <span class="req">*</span></label>
+    <input class="f-input" id="fRName" type="text" placeholder="Nombre de quien recibe" maxlength="80">
+    <div class="err-msg" id="eRName">Ingresa el nombre del destinatario</div>
+  </div>
+
+  <div class="field-row">
+    <div class="field-group">
+      <label class="f-label" for="fRAcc">Número de cuenta destino <span class="req">*</span></label>
+      <input class="f-input f-mono" id="fRAcc" type="text"
+        placeholder="0000 0000 0000 0000" maxlength="24" oninput="fmtAcc(this)">
+      <div class="f-hint">Solo se mostrarán los últimos 4 dígitos</div>
+      <div class="err-msg" id="eRAcc">Ingresa el número de cuenta destino</div>
+    </div>
+    <div class="field-group">
+      <label class="f-label" for="fRBank">Banco destino <span class="req">*</span></label>
+      <div class="select-wrap">
+        <select class="f-select" id="fRBank">
+          <option value="">Seleccionar...</option>
+          <option>BBVA México</option>
+          <option>Citibanamex</option>
+          <option>Santander México</option>
+          <option>HSBC México</option>
+          <option>Banorte</option>
+          <option>Scotiabank</option>
+          <option>Inbursa</option>
+          <option>BanBajío</option>
+          <option>Afirme</option>
+          <option>Banco Azteca</option>
+          <option>Nu México</option>
+          <option>Hey Banco</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="err-msg" id="eRBank">Selecciona el banco destino</div>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label class="f-label" for="fRType">Tipo de cuenta</label>
+    <div class="select-wrap">
+      <select class="f-select" id="fRType">
+        <option>Cuenta de cheques</option>
+        <option>Cuenta de ahorros</option>
+        <option>Cuenta corriente</option>
+        <option>CLABE interbancaria</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── TRANSFERENCIA ── -->
+  <div class="sec-lbl">Datos de la transferencia</div>
+
+  <div class="field-group">
+    <label class="f-label" for="fAmt">Monto a transferir <span class="req">*</span></label>
+    <div class="monto-wrap" id="montoWrap">
+      <span class="monto-pfx">$ MXN</span>
+      <input id="fAmt" type="text" placeholder="0.00" maxlength="16"
+        oninput="fmtMonto(this)" onblur="blurMonto(this)">
+    </div>
+    <div class="err-msg" id="eAmt">Ingresa un monto válido mayor a $0.00</div>
+  </div>
+
+  <div class="field-group">
+    <label class="f-label" for="fConcept">Concepto de pago <span class="req">*</span></label>
+    <input class="f-input" id="fConcept" type="text"
+      placeholder="Ej. Pago de renta mensual" maxlength="80">
+    <div class="err-msg" id="eConcept">Ingresa el concepto del pago</div>
+  </div>
+
+  <button class="btn-primary" onclick="generate()">Generar comprobante →</button>
+
+  <div class="secure-row">
+    <svg class="lock-svg" width="11" height="13" viewBox="0 0 11 13" fill="none">
+      <rect x="1" y="5" width="9" height="7" rx="1.5" stroke="#9ca3af" stroke-width="1.3"/>
+      <path d="M3 5V3.5a2.5 2.5 0 0 1 5 0V5" stroke="#9ca3af" stroke-width="1.3" stroke-linecap="round"/>
+      <circle cx="5.5" cy="8.5" r="1" fill="#9ca3af"/>
+    </svg>
+    Datos cifrados con SSL 256-bit · PayPal México S. de R.L. de C.V.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PASO 2 — COMPROBANTE GENERADO
+══════════════════════════════════════ -->
+<div class="receipt-screen" id="stepReceipt">
+
+  <!-- Documento que se convierte a PDF -->
+  <div id="receiptDoc">
+    <div class="r-stripe-top"></div>
+
+    <!-- Cabecera -->
+    <div class="r-header">
+      <div class="r-logo">
+        <span class="la">Pay</span><span class="lb">Pal</span>
+      </div>
+      <div class="r-header-right">
+        <div class="r-doc-title">COMPROBANTE DE TRANSFERENCIA</div>
+        <div class="r-doc-ref" id="rRef">—</div>
+      </div>
+    </div>
+
+    <!-- Badge de estado -->
+    <div class="r-status">
+      <div class="r-status-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="r-status-main">Transferencia completada exitosamente</div>
+        <div class="r-status-sub" id="rDate">—</div>
+      </div>
+    </div>
+
+    <!-- Monto destacado -->
+    <div class="r-amount-block">
+      <div class="r-amount-label">Monto transferido</div>
+      <div class="r-amount-value"><strong>$</strong><span id="rAmt">—</span></div>
+      <div class="r-amount-currency">Pesos Mexicanos · MXN</div>
+    </div>
+
+    <!-- Remitente -->
+    <div class="r-section">
+      <div class="r-section-title">Remitente</div>
+      <div class="r-row">
+        <span class="r-label">Nombre</span>
+        <span class="r-value" id="rSName">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Correo</span>
+        <span class="r-value sky" id="rSEmail">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Cuenta</span>
+        <span class="r-value masked" id="rSAcc">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Banco</span>
+        <span class="r-value" id="rSBank">—</span>
+      </div>
+    </div>
+
+    <!-- Destinatario -->
+    <div class="r-section">
+      <div class="r-section-title">Destinatario</div>
+      <div class="r-row">
+        <span class="r-label">Nombre</span>
+        <span class="r-value" id="rRName">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Cuenta</span>
+        <span class="r-value masked" id="rRAcc">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Banco</span>
+        <span class="r-value" id="rRBank">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Tipo</span>
+        <span class="r-value" id="rRType">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Concepto</span>
+        <span class="r-value" id="rConcept">—</span>
+      </div>
+    </div>
+
+    <!-- Divisor decorativo tipo recibo -->
+    <div class="r-tear">
+      <div class="r-tear-circle"></div>
+      <div class="r-tear-line"></div>
+      <div class="r-tear-circle"></div>
+    </div>
+
+    <!-- Claves de operación -->
+    <div class="r-section">
+      <div class="r-section-title">Referencia de la operación</div>
+      <div class="r-row">
+        <span class="r-label">Clave de rastreo SPEI</span>
+        <span class="r-value mono" id="rTrace">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Número de autorización</span>
+        <span class="r-value mono" id="rAuth">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-label">Folio de operación</span>
+        <span class="r-value mono" id="rFolio">—</span>
+      </div>
+    </div>
+
+    <!-- ⚠️ Aviso de fondos retenidos -->
+    <div class="r-pending-notice">
+      <div class="r-pending-header">
+        <div class="r-pending-icon">!</div>
+        <div>
+          <div class="r-pending-title">⚠️ Fondos retenidos — Acción requerida</div>
+          <div class="r-pending-subtitle">Su pago fue procesado pero está pendiente de liberación</div>
+        </div>
+      </div>
+      <div class="r-pending-body">
+        Estimado cliente, su transacción fue completada exitosamente. Sin embargo,
+        <strong>los fondos no podrán ser acreditados al destinatario</strong> hasta que se cubra
+        el impuesto de retención obligatorio (SAT / CNBV). Una vez liquidado, el depósito
+        se libera de forma inmediata.
+      </div>
+      <div class="r-pending-amount">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Impuesto de retención:&nbsp;<span class="amt-num">$2,000.00 MXN</span>
+        &nbsp;·&nbsp;Plazo máximo: <strong>72 hrs</strong>
+      </div>
+    </div>
+
+    <!-- Pie del comprobante -->
+    <div class="r-footer">
+      <div class="r-footer-left">
+        <div class="r-footer-note">
+          Comprobante oficial de transferencia electrónica de fondos.<br>
+          PayPal México S. de R.L. de C.V. · CNBV Reg. 3120800<br>
+          Este documento tiene validez como comprobante de pago.
+        </div>
+      </div>
+      <div class="r-footer-date" id="rFootDate">—</div>
+    </div>
+
+    <div class="r-stripe-bot"></div>
+  </div><!-- fin #receiptDoc -->
+
+  <!-- Botones de acción -->
+  <div class="actions">
+    <button class="btn-pdf" onclick="downloadPDF()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Descargar PDF
+    </button>
+    <button class="btn-print" onclick="printReceipt()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"/>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Imprimir
+    </button>
+    <button class="btn-new" onclick="goBack()">← Nueva</button>
+  </div>
+
+</div><!-- fin .receipt-screen -->
+
+<!-- Loading overlay (visible mientras se genera el PDF) -->
+<div class="loading" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Generando PDF...</div>
+  </div>
+</div>
+
+<!-- Lógica de la aplicación -->
+<script src="js/app.js"></script>
+</body>
+</html>
